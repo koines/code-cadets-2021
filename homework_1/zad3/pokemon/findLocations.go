@@ -6,7 +6,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sethgrid/pester"
 	"io/ioutil"
-	"log"
 )
 
 const pokemonData = "https://pokeapi.co/api/v2/pokemon/"
@@ -24,50 +23,48 @@ type Pokemon struct {
 }
 
 type Output struct {
-	Name string
+	Name      string
 	Locations []string
 }
 
-func GetData(url string) []byte {
+func GetData(url string) ([]byte, error) {
 	httpClient := pester.New()
 
 	httpResponse, err := httpClient.Get(url)
 	if err != nil {
-		log.Fatal(
-			errors.WithMessage(err, "HTTP get towards pokemon API"),
-		)
+		return nil, errors.WithMessage(err, "HTTP get towards pokemon API")
 	}
 
 	bodyContent, err := ioutil.ReadAll(httpResponse.Body)
 	if err != nil {
-		log.Fatal(
-			errors.WithMessage(err, "reading body of pokemon API response"),
-		)
+		return nil, errors.WithMessage(err, "reading body of pokemon API response")
 	}
 
-	return bodyContent
+	return bodyContent, nil
 }
 
-func FindPokemonLocations(input string) {
-	bodyContent := GetData(pokemonData + input)
+func FindPokemonLocations(input string) error {
+	bodyContent, error := GetData(pokemonData + input)
+	if error != nil {
+		return error
+	}
+
 	var decodedContent Pokemon
 	err := json.Unmarshal(bodyContent, &decodedContent)
 	if err != nil {
-		log.Fatal(
-			errors.WithMessage(err, "unmarshalling the JSON body content"),
-		)
+		return errors.WithMessage(err, "unmarshal: json content")
 	}
 
+	bodyContent, error = GetData(pokemonData + input + "/encounters")
+	if err != nil {
+		return err
+	}
 
-	bodyContent = GetData(pokemonData + input + "/encounters")
 	var areas []LocationAreaEncounter
 	err = json.Unmarshal(bodyContent, &areas)
 	if err != nil {
-		log.Fatal(
-			errors.WithMessage(err, "unmarshalling the JSON body content"),
-		)
+		return errors.WithMessage(err, "unmarshal: json content")
 	}
-
 
 	var output Output
 	output.Name = decodedContent.Name
@@ -77,4 +74,6 @@ func FindPokemonLocations(input string) {
 
 	result, _ := json.MarshalIndent(output, "", "\t")
 	fmt.Println(string(result))
+
+	return nil
 }
