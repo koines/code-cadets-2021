@@ -1,4 +1,4 @@
-module zad2
+module github.com/koines/code-cadets-2021/homework_1/zad2
 
 go 1.16
 

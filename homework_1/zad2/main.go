@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
-	"zad2/taxCalculation"
+	"math"
+
+	"github.com/koines/code-cadets-2021/homework_1/zad2/taxCalculation"
 )
 
 func main() {
@@ -12,10 +14,31 @@ func main() {
 	var money float64
 	var currency string
 
-	fmt.Scanf("%f %s", &money, &currency)
+	_, err := fmt.Scanf("%f %s", &money, &currency)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println("Calculating...")
-	solution, err := taxCalculation.CalculateTax(money)
+	var taxLevels = []taxCalculation.TaxLevel{
+		{
+			1000,
+			0,
+		},
+		{
+			5000,
+			0.1,
+		},
+		{
+			10000,
+			0.2,
+		},
+		{
+			math.Inf(1),
+			0.3,
+		},
+	}
+	solution, err := taxCalculation.CalculateTax(money, taxLevels)
 	if err != nil {
 		log.Fatal(err)
 	}
