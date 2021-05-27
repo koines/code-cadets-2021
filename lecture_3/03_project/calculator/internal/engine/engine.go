@@ -24,13 +24,13 @@ func New(consumer Consumer, handler Handler, publisher Publisher) *Engine {
 
 // Start will run the engine.
 func (e *Engine) Start(ctx context.Context) {
-	err := e.processBetsReceived(ctx)
+	err := e.processBets(ctx)
 	if err != nil {
 		log.Println("Engine failed to process bets received:", err)
 		return
 	}
 
-	err = e.processBetsCalculated(ctx)
+	err = e.processEventUpdates(ctx)
 	if err != nil {
 		log.Println("Engine failed to process bets calculated:", err)
 		return
@@ -39,25 +39,25 @@ func (e *Engine) Start(ctx context.Context) {
 	<-ctx.Done()
 }
 
-func (e *Engine) processBetsReceived(ctx context.Context) error {
-	consumedBetsReceived, err := e.consumer.ConsumeBetsReceived(ctx)
+func (e *Engine) processBets(ctx context.Context) error {
+	consumedBets, err := e.consumer.ConsumeBets(ctx)
 	if err != nil {
 		return err
 	}
 
-	resultingBets := e.handler.HandleBetsReceived(ctx, consumedBetsReceived)
-	e.publisher.PublishBets(ctx, resultingBets)
+	e.handler.HandleBets(ctx, consumedBets)
 
 	return nil
 }
 
-func (e *Engine) processBetsCalculated(ctx context.Context) error {
-	consumedBetsCalculated, err := e.consumer.ConsumeBetsCalculated(ctx)
+func (e *Engine) processEventUpdates(ctx context.Context) error {
+	consumedEventUpdates, err := e.consumer.ConsumeEventUpdates(ctx)
 	if err != nil {
 		return err
 	}
 
-	e.handler.HandleBetsCalculated(ctx, consumedBetsCalculated)
+	resultingBets := e.handler.HandleEventUpdates(ctx, consumedEventUpdates)
+	e.publisher.PublishBetCalculated(ctx, resultingBets)
 
 	return nil
 }

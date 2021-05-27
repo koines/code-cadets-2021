@@ -14,9 +14,12 @@ func main() {
 
 	log.Println("If exists, dropping existing bets database...")
 	err := os.Remove("../../db/bets.db")
+
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
+
 
 	log.Println("Creating bets database...")
 	file, err := os.Create("../../db/bets.db")
