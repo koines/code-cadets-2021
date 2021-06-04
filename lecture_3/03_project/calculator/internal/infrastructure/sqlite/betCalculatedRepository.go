@@ -93,7 +93,7 @@ func (r *BetCalcRepository) queryGetBetByID(ctx context.Context, id string) (sto
 	row.Next()
 
 	var selectionId string
-	var selectionCoefficient string
+	var selectionCoefficient int
 	var payment int
 
 	err = row.Scan(&id, &selectionId, &selectionCoefficient, &payment)
@@ -121,7 +121,7 @@ func (r *BetCalcRepository) queryGetBetsBySelectionID(ctx context.Context, id st
 	// This will move to the "next" result (which is the only result, because a single bet is fetched).
 	for row.Next() {
 		var selectionId string
-		var selectionCoefficient string
+		var selectionCoefficient int
 		var payment int
 		var idBet string
 

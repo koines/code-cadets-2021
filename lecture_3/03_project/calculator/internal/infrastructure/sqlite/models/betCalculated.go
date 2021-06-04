@@ -4,6 +4,6 @@ package models
 type BetCalc struct {
 	Id                   string
 	SelectionId          string
-	SelectionCoefficient string
+	SelectionCoefficient int
 	Payment              int
 }

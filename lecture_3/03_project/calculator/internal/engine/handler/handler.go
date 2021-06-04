@@ -4,8 +4,12 @@ import (
 	"context"
 	domainmodels "github.com/koines/code-cadets-2021/lecture_3/03_project/calculator/internal/domain/models"
 	rabbitmqmodels "github.com/koines/code-cadets-2021/lecture_3/03_project/calculator/internal/infrastructure/rabbitmq/models"
+	"github.com/mattn/go-sqlite3"
 	"log"
 )
+
+const outcomeWon = "won"
+const outcomeLost = "lost"
 
 // Handler handles bets received and bets calculated.
 type Handler struct {
@@ -39,18 +43,13 @@ func (h *Handler) HandleBets(
 
 			// Insert the domain bet into the repository.
 			err := h.betCalcRepository.InsertBet(ctx, domainBet)
-			if err != nil {
+			if err == sqlite3.ErrConstraint {
+				log.Println("bet already exists")
+				continue
+			} else if err != nil {
 				log.Println("Failed to insert bet, error: ", err)
 				continue
 			}
-
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				continue
-			}
-
 		}
 	}()
 }
@@ -81,10 +80,10 @@ func (h *Handler) HandleEventUpdates(
 
 			// Calculate the resulting bet, which should be published.
 			for _, domainBet := range domainBets {
-				status := "lost"
+				status := outcomeLost
 				payout := 0.0
 
-				if eventUpdate.Outcome == "won" {
+				if eventUpdate.Outcome == outcomeWon {
 					payout = domainBet.Payment * domainBet.SelectionCoefficient
 					status = eventUpdate.Outcome
 				}
