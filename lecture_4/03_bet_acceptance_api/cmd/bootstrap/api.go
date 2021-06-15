@@ -10,12 +10,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
-const coefficientBound = 10.0
-const paymentLowerBound = 2.0
-const paymentUpperBound = 100.0
-
 func newBetValidator() *validators.BetValidator {
-	return validators.NewBetValidator(coefficientBound, paymentLowerBound, paymentUpperBound)
+	return validators.NewBetValidator(config.Cfg.ConstVar.CoefficientBound, config.Cfg.ConstVar.PaymentLowerBound, config.Cfg.ConstVar.PaymentUpperBound)
 }
 
 func newBetPublisher(publisher rabbitmq.QueuePublisher) *rabbitmq.BetReceivedPublisher {
