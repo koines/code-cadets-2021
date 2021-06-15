@@ -25,6 +25,16 @@ func (e *Controller) FetchAll() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		userId := context.Param("id")
 
+		if userId == "" {
+			context.String(http.StatusBadRequest, "id is not valid")
+			return
+		}
+
+		if !e.idValidator.IdIsValid(userId) {
+			context.String(http.StatusBadRequest, "request not valid")
+			return
+		}
+
 		bets, err := e.betDtoService.GetAll(context, userId)
 		if err != nil {
 			context.String(http.StatusInternalServerError, "request could not be processed.")
@@ -39,10 +49,19 @@ func (e *Controller) FetchSpecificId() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		id := context.Param("id")
 
+		if id == "" {
+			context.String(http.StatusBadRequest, "id is not valid")
+			return
+		}
+
+		if !e.idValidator.IdIsValid(id) {
+			context.String(http.StatusBadRequest, "request not valid")
+			return
+		}
+
 		bet, err := e.betDtoService.GetByID(context, id)
 		if err != nil {
-			//context.String(http.StatusInternalServerError, "request could not be processed.")
-			context.String(http.StatusInternalServerError, err.Error())
+			context.String(http.StatusInternalServerError, "request could not be processed.")
 			return
 		}
 
@@ -53,6 +72,16 @@ func (e *Controller) FetchSpecificId() gin.HandlerFunc {
 func (e *Controller) FetchSpecificStatus() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		status := context.Query("status")
+
+		if status == "" {
+			context.String(http.StatusBadRequest, "status is not valid")
+			return
+		}
+
+		if !e.statusValidator.StatusIsValid(status) {
+			context.String(http.StatusBadRequest, "request not valid")
+			return
+		}
 
 		bets, err := e.betDtoService.GetByStatus(context, status)
 		if err != nil {

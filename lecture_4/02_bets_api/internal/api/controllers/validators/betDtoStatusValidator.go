@@ -4,17 +4,15 @@ const lostStatus = "lost"
 const wonStatus = "won"
 const activeStatus = "active"
 
-// BetDtoIdValidator validates event update requests.
 type BetDtoStatusValidator struct{}
 
-// NewBetDtoIdValidator creates a new instance of BetDtoIdValidator.
+// NewBetDtoStatusValidator creates a new instance of BetDtoStatusValidator.
 func NewBetDtoStatusValidator() *BetDtoStatusValidator {
 	return &BetDtoStatusValidator{}
 }
 
-// IdIsValid checks if event update is valid.
-// Id is not empty
-// Outcome is `lost`or `won`
+// StatusIsValid checks if status is valid.
+// Status is `lost`, `won` or `active`
 func (e *BetDtoStatusValidator) StatusIsValid(status string) bool {
 	if status == lostStatus || status == wonStatus || status == activeStatus {
 		return true

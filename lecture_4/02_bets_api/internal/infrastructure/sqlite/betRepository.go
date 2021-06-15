@@ -47,14 +47,10 @@ func (r *BetRepository) queryGetBetByID(ctx context.Context, id string) (storage
 	// This will move to the "next" result (which is the only result, because a single bet is fetched).
 	row.Next()
 
-	var customerId string
-	var status string
-	var selectionId string
-	var selectionCoefficient int
-	var payment int
+	bet := storagemodels.Bet{}
 	var payoutSql sql.NullInt64
 
-	err = row.Scan(&id, &customerId, &status, &selectionId, &selectionCoefficient, &payment, &payoutSql)
+	err = row.Scan(&bet.Id, &bet.CustomerId, &bet.Status, &bet.SelectionId, &bet.SelectionCoefficient, &bet.Payment, &payoutSql)
 	if err != nil {
 		return storagemodels.Bet{}, err
 	}
@@ -64,13 +60,14 @@ func (r *BetRepository) queryGetBetByID(ctx context.Context, id string) (storage
 		payout = int(payoutSql.Int64)
 	}
 
+
 	return storagemodels.Bet{
 		Id:                   id,
-		CustomerId:           customerId,
-		Status:               status,
-		SelectionId:          selectionId,
-		SelectionCoefficient: selectionCoefficient,
-		Payment:              payment,
+		CustomerId:           bet.CustomerId,
+		Status:               bet.Status,
+		SelectionId:          bet.SelectionId,
+		SelectionCoefficient: bet.SelectionCoefficient,
+		Payment:              bet.Payment,
 		Payout:               payout,
 	}, nil
 }
@@ -103,34 +100,30 @@ func (r *BetRepository) queryGetBetByStatus(ctx context.Context, status string) 
 	defer row.Close()
 
 	var bets []storagemodels.Bet
+	var payoutSql sql.NullInt64
+
+	bet := storagemodels.Bet{}
 
 	// A loop over all returned rows.
 	for row.Next() {
-		var customerId string
-		var id string
-		var selectionId string
-		var selectionCoefficient int
-		var payment int
-		var payoutSql sql.NullInt64
-
-		err = row.Scan(&id, &customerId, &status, &selectionId, &selectionCoefficient, &payment, &payoutSql)
+		err = row.Scan(&bet.Id, &bet.CustomerId, &bet.Status, &bet.SelectionId, &bet.SelectionCoefficient, &bet.Payment, &payoutSql)
 		if err != nil {
 			return []storagemodels.Bet{}, err
 		}
 
 		var payout int
-
 		if payoutSql.Valid {
 			payout = int(payoutSql.Int64)
 		}
 
+
 		bets = append(bets, storagemodels.Bet{
-			Id:                   id,
-			CustomerId:           customerId,
-			Status:               status,
-			SelectionId:          selectionId,
-			SelectionCoefficient: selectionCoefficient,
-			Payment:              payment,
+			Id:                   bet.Id,
+			CustomerId:           bet.CustomerId,
+			Status:               bet.Status,
+			SelectionId:          bet.SelectionId,
+			SelectionCoefficient: bet.SelectionCoefficient,
+			Payment:              bet.Payment,
 			Payout:               payout,
 		})
 	}
