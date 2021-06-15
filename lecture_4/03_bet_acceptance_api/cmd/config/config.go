@@ -31,7 +31,7 @@ type rabbitConfig struct {
 	PublisherExchange      string `split_words:"true" default:""`
 	PublisherMandatory     bool   `split_words:"true" default:"false"`
 	PublisherImmediate     bool   `split_words:"true" default:"false"`
-	ConnectionQueue        string `split_words:"true" default:"amqp://guest:guest@localhost:5672/"`
+	ConnectionQueue        string `split_words:"true" required:"true"`
 }
 
 // Load loads the configuration on bootstrap, this avoid injecting the same config object
